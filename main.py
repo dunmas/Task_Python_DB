@@ -114,14 +114,24 @@ def client_edit(conn, client_id, first_name=None, last_name=None, email=None, ph
 
         conn.commit()
 
-def delete_phone(conn):
-    pass
+
+def delete_phone(conn, client_id, phone):
+    if client_id_checker(conn, client_id) is None:
+        return
+
+    with conn.cursor() as cur:
+        cur.execute("""
+        DELETE FROM phone_number
+        WHERE client_id = %s AND phone = %s;
+        """, (client_id, phone))
+
 
 def delete_client(conn):
     pass
 
 def find_client(conn):
     pass
+
 
 with psycopg2.connect(database='clients_db', user='postgres', password='zemege50') as conn:
     create_db(conn)
@@ -138,5 +148,7 @@ with psycopg2.connect(database='clients_db', user='postgres', password='zemege50
 
     # Если такого ID нет - ничего не происходит
     # client_edit(conn, 999, 'Bill')
+
+    # delete_phone(conn, 1, '1111111111')
 
 conn.close()
