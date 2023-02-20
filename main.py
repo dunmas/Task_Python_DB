@@ -1,5 +1,6 @@
 import psycopg2
 
+
 def create_db(conn):
     with conn.cursor() as cur:
         cur.execute("""
@@ -19,8 +20,27 @@ def create_db(conn):
         );
         """)
 
-def add_client(conn):
-    pass
+        conn.commit()
+
+
+def add_client(conn, first_name, last_name, email, phones=None):
+    with conn.cursor() as cur:
+        cur.execute("""
+        INSERT INTO client(first_name, last_name, email)
+        VALUES(%s, %s, %s)
+        RETURNING client_id;
+        """, (first_name, last_name, email))
+        client_id = cur.fetchone()
+
+        if phones is not None:
+            for phone in phones:
+                cur.execute("""
+                INSERT INTO phone_number(phone, client_id)
+                VALUES(%s, %s)
+                """, (phone, client_id))
+
+        conn.commit()
+
 
 def add_phone(conn):
     pass
@@ -40,4 +60,6 @@ def find_client(conn):
 with psycopg2.connect(database='clients_db', user='postgres', password='zemege50') as conn:
     create_db(conn)
 
+    # add_client(conn, 'Post', 'Gre', 'sql@yandex.ru')
+    add_client(conn, 'Saul', 'Goodman', 'sgalb@yahoo.com', ['9876543211', '9871234566'])
 conn.close()
