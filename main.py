@@ -145,8 +145,68 @@ def delete_client(conn, client_id):
 
         conn.commit()
 
-def find_client(conn):
-    pass
+
+# Возвращает массив с найденными ID клиентов
+def find_client(conn, first_name=None, last_name=None, email=None, phone=None):
+    result = []
+
+    if first_name is not None:
+        with conn.cursor() as cur:
+            cur.execute("""
+            SELECT client_id FROM client
+            WHERE first_name = %s;
+            """, (first_name,))
+
+            pairs = cur.fetchall()
+
+            for pair in pairs:
+                result.append(pair[0])
+
+            conn.commit()
+
+    if last_name is not None:
+        with conn.cursor() as cur:
+            cur.execute("""
+            SELECT client_id FROM client
+            WHERE last_name = %s;
+            """, (last_name,))
+
+            pairs = cur.fetchall()
+
+            for pair in pairs:
+                result.append(pair[0])
+
+            conn.commit()
+
+    if email is not None:
+        with conn.cursor() as cur:
+            cur.execute("""
+            SELECT client_id FROM client
+            WHERE email = %s;
+            """, (email,))
+
+            data = cur.fetchall()
+
+            if data:
+                result.append(data[0][0])
+
+            conn.commit()
+
+    if phone is not None:
+        with conn.cursor() as cur:
+            cur.execute("""
+            SELECT client_id FROM phone_number
+            WHERE phone = %s
+            """, (phone,))
+
+            data = cur.fetchall()
+
+            if data:
+                result.append(data[0][0])
+
+            conn.commit()
+
+    return result
 
 
 with psycopg2.connect(database='clients_db', user='postgres', password='zemege50') as conn:
@@ -167,6 +227,18 @@ with psycopg2.connect(database='clients_db', user='postgres', password='zemege50
 
     # delete_phone(conn, 1, '1111111111')
 
-    delete_client(conn, 1)
+    # delete_client(conn, 1)
+
+    # add_client(conn, 'Post', 'Gre', 'sql1@yandex.ru')
+    # add_client(conn, 'Post', 'Con', 'sql2@yandex.ru')
+    # add_client(conn, 'Post', 'Seed', 'sql3@yandex.ru')
+    # add_client(conn, 'Gonsales', 'Seed', 'sql4@yandex.ru')
+
+    # print(find_client(conn, 'Post'))
+    # print(find_client(conn, None, 'Seed'))
+    # print(find_client(conn, None, None, 'sql3@yandex.ru'))
+    # print(find_client(conn, None, None, None, '9876543211'))
+
+    # print(find_client(conn, 'None'))
 
 conn.close()
