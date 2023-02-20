@@ -42,14 +42,20 @@ def add_client(conn, first_name, last_name, email, phones=None):
         conn.commit()
 
 
-def add_phone(conn, client_id, phone):
+def client_id_checker(conn, client_id):
     with conn.cursor() as cur:
         cur.execute("""
         SELECT client_id FROM client
         WHERE client_id = %s
         """, (client_id,))
-        existing_result: bool = cur.fetchone()
 
+        return cur.fetchone()
+
+
+def add_phone(conn, client_id, phone):
+    existing_result = client_id_checker(conn, client_id)
+
+    with conn.cursor() as cur:
         if existing_result is not None:
             cur.execute("""
             INSERT INTO phone_number(phone, client_id)
@@ -76,5 +82,5 @@ with psycopg2.connect(database='clients_db', user='postgres', password='zemege50
 
     # add_client(conn, 'Post', 'Gre', 'sql@yandex.ru')
     # add_client(conn, 'Saul', 'Goodman', 'sgalb@yahoo.com', ['9876543211', '9871234566'])
-    # add_phone(conn, 1, '9876546781')
+    # add_phone(conn, 1, '9876546782')
 conn.close()
